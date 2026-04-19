@@ -15,22 +15,29 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-# ── Page Config ───────────────────────────────────────
 st.set_page_config(
     page_title="KrishiAI — Smart Farming Assistant",
     page_icon="🌾",
     layout="centered"
 )
 
-# ── CSS ───────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
 html, body, .stApp {
     background-color: #0a1628 !important;
+    color: #ffffff !important;
     font-family: 'Inter', sans-serif;
 }
-.block-container { padding-top: 0 !important; max-width: 780px; }
+
+.block-container {
+    padding-top: 0 !important;
+    max-width: 780px;
+    position: relative;
+    z-index: 1;
+}
+
 .nav {
     display: flex; align-items: center;
     justify-content: space-between;
@@ -44,9 +51,10 @@ html, body, .stApp {
     border-radius: 10px; display: flex;
     align-items: center; justify-content: center; font-size: 20px;
 }
-.nav-name { font-size: 20px; font-weight: 800; color: #fff; }
+.nav-name { font-size: 20px; font-weight: 800; color: #ffffff; }
 .nav-name span { color: #52b788; }
-.nav-tagline { font-size: 12px; color: rgba(255,255,255,0.4); }
+.nav-tagline { font-size: 12px; color: rgba(255,255,255,0.55); }
+
 .hero { text-align: center; padding: 2rem 0 1.5rem; }
 .hero-badge {
     display: inline-block;
@@ -55,136 +63,165 @@ html, body, .stApp {
     border-radius: 20px; padding: 5px 14px;
     font-size: 12px; color: #52b788; margin-bottom: 1rem;
 }
-.hero h1 {
-    font-size: 38px; font-weight: 800; color: #fff;
-    line-height: 1.2; margin-bottom: 1rem;
-}
+.hero h1 { font-size: 38px; font-weight: 800; color: #ffffff; line-height: 1.2; margin-bottom: 1rem; }
 .hero h1 span { color: #52b788; }
-.hero p {
-    font-size: 15px; color: rgba(255,255,255,0.5);
-    max-width: 480px; margin: 0 auto 2rem; line-height: 1.7;
-}
-.stats-row {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 12px; margin-bottom: 2rem;
-}
+.hero p { font-size: 15px; color: rgba(255,255,255,0.72); max-width: 480px; margin: 0 auto 2rem; line-height: 1.7; }
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
 .stat-card {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 1rem; text-align: center;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px; padding: 1rem; text-align: center; backdrop-filter: blur(8px);
 }
 .stat-num { font-size: 22px; font-weight: 700; color: #52b788; }
-.stat-lbl { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 3px; }
-.features {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 14px; margin-bottom: 2rem;
-}
+.stat-lbl { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 3px; }
+
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 2rem; }
 .feat-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px; padding: 1.2rem;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px; padding: 1.2rem; backdrop-filter: blur(8px);
 }
-.feat-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    display: flex; align-items: center;
-    justify-content: center; font-size: 18px; margin-bottom: 10px;
-}
+.feat-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 10px; }
 .feat-icon.green { background: rgba(82,183,136,0.2); }
 .feat-icon.blue  { background: rgba(55,138,221,0.2); }
 .feat-icon.amber { background: rgba(239,159,39,0.2); }
-.feat-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 5px; }
-.feat-desc { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.6; }
+.feat-title { font-size: 13px; font-weight: 600; color: #ffffff; margin-bottom: 5px; }
+.feat-desc { font-size: 12px; color: rgba(255,255,255,0.70); line-height: 1.6; }
+
 .chat-header-box {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
     border-radius: 14px 14px 0 0; padding: 1rem 1.2rem;
     display: flex; align-items: center; gap: 10px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .chat-dot { width: 8px; height: 8px; border-radius: 50%; background: #52b788; }
-.chat-title-text { font-size: 14px; font-weight: 600; color: #fff; }
+.chat-title-text { font-size: 14px; font-weight: 600; color: #ffffff; }
 .chat-online { margin-left: auto; font-size: 11px; color: #52b788; }
+
 .ml-badge {
-    display: inline-block;
-    background: rgba(82,183,136,0.15);
-    border: 1px solid rgba(82,183,136,0.3);
-    border-radius: 8px; padding: 4px 10px;
-    font-size: 12px; color: #52b788;
+    display: inline-block; background: rgba(82,183,136,0.15);
+    border: 1px solid rgba(82,183,136,0.3); border-radius: 8px;
+    padding: 4px 10px; font-size: 12px; color: #52b788;
     margin-bottom: 6px; font-weight: 600;
 }
+
 .tip-box {
-    background: rgba(239,159,39,0.1);
-    border: 1px solid rgba(239,159,39,0.25);
+    background: rgba(239,159,39,0.1); border: 1px solid rgba(239,159,39,0.25);
     border-radius: 10px; padding: 10px 14px;
-    font-size: 12px; color: #EF9F27; margin-bottom: 1rem;
+    font-size: 12px; color: #ffd08a; margin-bottom: 1rem;
 }
-.stChatMessage {
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    border-radius: 12px !important; margin-bottom: 8px !important;
+
+/* Chat bubbles */
+div[data-testid="stChatMessage"] {
+    background: rgba(255,255,255,0.10) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    border-radius: 16px !important;
+    padding: 0.75rem 0.95rem !important;
+    margin-bottom: 12px !important;
+    backdrop-filter: blur(8px);
 }
-.stChatMessage p { color: rgba(255,255,255,0.85) !important; }
-.stChatInputContainer {
-    background: rgba(255,255,255,0.06) !important;
-    border: 1px solid rgba(255,255,255,0.12) !important;
-    border-radius: 12px !important;
+div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
+    background: rgba(82,183,136,0.16) !important;
+    border: 1px solid rgba(82,183,136,0.28) !important;
 }
-.stChatInputContainer textarea { color: #fff !important; background: transparent !important; }
+div[data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-assistant"]) {
+    background: rgba(55,138,221,0.16) !important;
+    border: 1px solid rgba(55,138,221,0.28) !important;
+}
+div[data-testid="stChatMessage"] p,
+div[data-testid="stChatMessage"] li,
+div[data-testid="stChatMessage"] span,
+div[data-testid="stChatMessage"] label,
+div[data-testid="stChatMessage"] strong,
+div[data-testid="stChatMessage"] em,
+div[data-testid="stChatMessage"] div {
+    color: #f8fbff !important;
+    opacity: 1 !important;
+}
+div[data-testid="stChatMessage"] ul,
+div[data-testid="stChatMessage"] ol { color: #f8fbff !important; }
+div[data-testid="stChatMessageContent"] { color: #f8fbff !important; }
+
+/* ── CHAT INPUT FIX — THE KEY PART ───────────────── */
+div[data-testid="stChatInput"] {
+    background: rgba(14, 24, 40, 0.96) !important;
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+    padding-top: 10px !important;
+}
+div[data-testid="stChatInput"] > div {
+    background: rgba(20, 30, 50, 0.98) !important;
+    border: 1px solid rgba(82,183,136,0.35) !important;
+    border-radius: 16px !important;
+}
+div[data-testid="stChatInput"] textarea {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    /* NO transparent background — this was causing invisible text */
+    background: rgba(20, 30, 50, 0.98) !important;
+    font-size: 15px !important;
+    caret-color: #52b788 !important;
+    opacity: 1 !important;
+}
+div[data-testid="stChatInput"] textarea::placeholder {
+    color: rgba(255,255,255,0.45) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.45) !important;
+}
+div[data-testid="stChatInput"] button {
+    background: rgba(82,183,136,0.18) !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(82,183,136,0.25) !important;
+}
+
+/* Clear button */
 .stButton > button {
-    background: rgba(255,255,255,0.05) !important;
-    color: rgba(255,255,255,0.6) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    border-radius: 8px !important; font-size: 12px !important;
+    background: rgba(255,255,255,0.06) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    border-radius: 10px !important; font-size: 12px !important;
 }
 .stButton > button:hover {
-    background: rgba(255,0,0,0.1) !important;
-    color: #ff6b6b !important;
-    border-color: rgba(255,0,0,0.2) !important;
+    background: rgba(255,0,0,0.12) !important;
+    color: #ff8a8a !important;
+    border-color: rgba(255,0,0,0.22) !important;
 }
+
 footer { display: none !important; }
 #MainMenu { display: none !important; }
 header { display: none !important; }
-</style>
-""", unsafe_allow_html=True)
 
-# ── Floating grid ─────────────────────────────────────
-st.markdown("""
-<style>
-.stApp::before {
-    content: '';
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background-image:
-        linear-gradient(rgba(82,183,136,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(82,183,136,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none; z-index: 0;
+@media (max-width: 768px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .features { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 30px; }
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Load API Key ──────────────────────────────────────
+st.markdown("""
+<style>
+.stApp::before {
+    content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+        linear-gradient(rgba(82,183,136,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(82,183,136,0.04) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none; z-index: 0;
+}
+</style>
+""", unsafe_allow_html=True)
+
 load_dotenv()
 groq_key = os.getenv("GROQ_API_KEY")
 
-# ── Initialize ────────────────────────────────────────
 @st.cache_resource
 def initialize():
     diseases_data = {
         "disease": [
-            "Tomato Early Blight","Tomato Late Blight",
-            "Tomato Leaf Mold","Tomato Mosaic Virus",
-            "Tomato Yellow Leaf Curl","Tomato Septoria Spot",
-            "Potato Early Blight","Potato Late Blight",
-            "Potato Black Scurf","Potato Common Scab",
-            "Rice Blast","Rice Brown Spot",
-            "Rice Bacterial Blight","Rice Sheath Blight",
-            "Wheat Rust","Wheat Powdery Mildew",
-            "Wheat Septoria","Wheat Fusarium",
-            "Cotton Boll Rot","Cotton Leaf Curl Virus",
-            "Maize Gray Leaf Spot","Maize Common Rust",
-            "Maize Northern Blight",
-            "Nitrogen Deficiency","Phosphorus Deficiency",
-            "Potassium Deficiency","Iron Deficiency",
+            "Tomato Early Blight","Tomato Late Blight","Tomato Leaf Mold","Tomato Mosaic Virus",
+            "Tomato Yellow Leaf Curl","Tomato Septoria Spot","Potato Early Blight","Potato Late Blight",
+            "Potato Black Scurf","Potato Common Scab","Rice Blast","Rice Brown Spot",
+            "Rice Bacterial Blight","Rice Sheath Blight","Wheat Rust","Wheat Powdery Mildew",
+            "Wheat Septoria","Wheat Fusarium","Cotton Boll Rot","Cotton Leaf Curl Virus",
+            "Maize Gray Leaf Spot","Maize Common Rust","Maize Northern Blight",
+            "Nitrogen Deficiency","Phosphorus Deficiency","Potassium Deficiency","Iron Deficiency",
             "Root Rot","Powdery Mildew","Downy Mildew"
         ],
         "symptoms": [
@@ -252,106 +289,69 @@ def initialize():
             "Apply metalaxyl fungicide improve drainage reduce humidity"
         ]
     }
-
     df = pd.DataFrame(diseases_data)
-    X = df["symptoms"]
-    y = df["disease"]
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    X, y = df["symptoms"], df["disease"]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     ml_pipeline = Pipeline([
         ("tfidf", TfidfVectorizer(ngram_range=(1, 2))),
         ("clf", RandomForestClassifier(n_estimators=200, random_state=42))
     ])
     ml_pipeline.fit(X_train, y_train)
-    accuracy = accuracy_score(
-        y_test, ml_pipeline.predict(X_test)
-    ) * 100
-
-    llm = ChatGroq(
-        model="llama-3.1-8b-instant",
-        api_key=groq_key
-    )
-
+    accuracy = accuracy_score(y_test, ml_pipeline.predict(X_test)) * 100
+    llm = ChatGroq(model="llama-3.1-8b-instant", api_key=groq_key)
     prompt = ChatPromptTemplate.from_messages([
-        ("system", """You are KrishiAI, an expert agriculture
-         assistant ONLY helping Indian farmers with:
+        ("system", """You are KrishiAI, an expert agriculture assistant ONLY helping Indian farmers with:
          - Crop diseases and treatments
          - Fertilizers and pesticides
          - Farming techniques
          - Soil and water management
-
          RULES:
          - ONLY answer agriculture questions
-         - If unrelated say: I can only help with
-           farming and agriculture questions!
+         - If unrelated say: I can only help with farming and agriculture questions!
          - Keep responses clear and practical
          - Always respond in simple English
          - Never repeat the same answer twice
-         - Give fresh specific advice each time
-         """),
+         - Give fresh specific advice each time"""),
         MessagesPlaceholder(variable_name="history"),
         ("human", "{question}")
     ])
-
     chain = prompt | llm | StrOutputParser()
     store = {}
-
     def get_session_history(session_id: str):
         if session_id not in store:
             store[session_id] = ChatMessageHistory()
         return store[session_id]
-
-    chatbot = RunnableWithMessageHistory(
-        chain,
-        get_session_history,
-        input_messages_key="question",
-        history_messages_key="history"
-    )
-
+    chatbot = RunnableWithMessageHistory(chain, get_session_history,
+        input_messages_key="question", history_messages_key="history")
     return ml_pipeline, chatbot, df, round(accuracy, 1)
 
 ml_pipeline, chatbot, df, accuracy = initialize()
 
-# ── Unique session ID per user ────────────────────────
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
 
-# ── ML Prediction ─────────────────────────────────────
 def predict_disease(user_input: str):
     try:
         disease = ml_pipeline.predict([user_input])[0]
-        confidence = ml_pipeline.predict_proba(
-            [user_input]
-        ).max() * 100
-        treatment = df[
-            df["disease"] == disease
-        ]["treatment"].values[0]
+        confidence = ml_pipeline.predict_proba([user_input]).max() * 100
+        treatment = df[df["disease"] == disease]["treatment"].values[0]
         return disease, round(float(confidence), 1), treatment
-    except:
+    except Exception:
         return None, None, None
 
-# ── Safe Invoke ───────────────────────────────────────
 def safe_invoke(question: str):
-    config = {"configurable": {
-        "session_id": st.session_state.session_id
-    }}
+    config = {"configurable": {"session_id": st.session_state.session_id}}
     try:
-        return chatbot.invoke(
-            {"question": question}, config=config
-        )
+        return chatbot.invoke({"question": question}, config=config)
     except Exception as e:
         if "429" in str(e):
             time.sleep(15)
             try:
-                return chatbot.invoke(
-                    {"question": question}, config=config
-                )
-            except:
+                return chatbot.invoke({"question": question}, config=config)
+            except Exception:
                 return "Rate limit hit. Please try again shortly."
         return f"Error: {e}"
 
-# ── Navbar ────────────────────────────────────────────
 st.markdown(f"""
 <div class="nav">
   <div class="nav-logo">
@@ -361,13 +361,12 @@ st.markdown(f"""
       <div class="nav-tagline">Smart farming assistant</div>
     </div>
   </div>
-  <div style="font-size:12px;color:rgba(255,255,255,0.4)">
+  <div style="font-size:12px;color:rgba(255,255,255,0.65)">
     ML: Ready &nbsp;|&nbsp; Diseases: {len(df)} &nbsp;|&nbsp; Accuracy: {accuracy}%
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Hero ──────────────────────────────────────────────
 st.markdown("""
 <div class="hero">
   <div class="hero-badge">Powered by LangChain + Groq AI</div>
@@ -378,29 +377,15 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Stats ─────────────────────────────────────────────
 st.markdown(f"""
 <div class="stats-row">
-  <div class="stat-card">
-    <div class="stat-num">{len(df)}+</div>
-    <div class="stat-lbl">Diseases known</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num">{accuracy}%</div>
-    <div class="stat-lbl">ML Accuracy</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num">10+</div>
-    <div class="stat-lbl">Crops covered</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num">24/7</div>
-    <div class="stat-lbl">Always available</div>
-  </div>
+  <div class="stat-card"><div class="stat-num">{len(df)}+</div><div class="stat-lbl">Diseases known</div></div>
+  <div class="stat-card"><div class="stat-num">{accuracy}%</div><div class="stat-lbl">ML Accuracy</div></div>
+  <div class="stat-card"><div class="stat-num">10+</div><div class="stat-lbl">Crops covered</div></div>
+  <div class="stat-card"><div class="stat-num">24/7</div><div class="stat-lbl">Always available</div></div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Features ──────────────────────────────────────────
 st.markdown("""
 <div class="features">
   <div class="feat-card">
@@ -421,7 +406,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Chat header + Clear button ────────────────────────
 col1, col2 = st.columns([5, 1])
 with col1:
     st.markdown("""
@@ -437,7 +421,6 @@ with col2:
         st.session_state.session_id = str(uuid.uuid4())
         st.rerun()
 
-# ── Tip ───────────────────────────────────────────────
 st.markdown("""
 <div class="tip-box">
   Tip: describe symptoms naturally — "yellow leaves",
@@ -445,7 +428,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Chat messages ─────────────────────────────────────
 if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.messages.append({
@@ -457,29 +439,16 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         if msg.get("badge"):
-            st.markdown(
-                f'<div class="ml-badge">{msg["badge"]}</div>',
-                unsafe_allow_html=True
-            )
+            st.markdown(f'<div class="ml-badge">{msg["badge"]}</div>', unsafe_allow_html=True)
         st.markdown(msg["content"])
 
-# ── Chat input ────────────────────────────────────────
-if user_input := st.chat_input(
-    "Describe your crop symptoms..."
-):
+if user_input := st.chat_input("Describe your crop symptoms..."):
     with st.chat_message("user"):
         st.markdown(user_input)
-    st.session_state.messages.append({
-        "role": "user",
-        "content": user_input,
-        "badge": None
-    })
+    st.session_state.messages.append({"role": "user", "content": user_input, "badge": None})
 
     disease, confidence, treatment = predict_disease(user_input)
 
-    # ── FIX: Only trigger ML disease mode if confidence >= 40%
-    # Below this threshold, the model is just guessing (e.g. for
-    # greetings like "hello"), so treat it as a normal chat message.
     if disease and confidence >= 40:
         question = f"""
         Farmer says: {user_input}
@@ -496,23 +465,13 @@ if user_input := st.chat_input(
         with st.spinner("KrishiAI is thinking..."):
             response = safe_invoke(question)
         if badge:
-            st.markdown(
-                f'<div class="ml-badge">{badge}</div>',
-                unsafe_allow_html=True
-            )
+            st.markdown(f'<div class="ml-badge">{badge}</div>', unsafe_allow_html=True)
         st.markdown(response)
 
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": response,
-        "badge": badge
-    })
+    st.session_state.messages.append({"role": "assistant", "content": response, "badge": badge})
 
-# ── Footer ────────────────────────────────────────────
 st.markdown("""
-<div style="text-align:center;padding:2rem 0 1rem;
-font-size:12px;color:rgba(255,255,255,0.2)">
-KrishiAI — Built with LangChain, Groq, Streamlit
-and Random Forest for Indian farmers
+<div style="text-align:center;padding:2rem 0 1rem;font-size:12px;color:rgba(255,255,255,0.32)">
+KrishiAI — Built with LangChain, Groq, Streamlit and Random Forest for Indian farmers
 </div>
 """, unsafe_allow_html=True)
