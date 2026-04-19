@@ -1,0 +1,11 @@
+flask
+flask-cors
+python-dotenv
+langchain
+langchain-groq
+langchain-community
+pillow
+numpy
+pandas
+scikit-learn
+tensorflow
